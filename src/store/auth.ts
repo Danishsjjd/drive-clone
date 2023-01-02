@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { RootState } from "../config/store"
 
 const initialState = {
   name: "danish",
@@ -11,5 +12,7 @@ const auth = createSlice({
 })
 
 export const {} = auth.actions
+
+export const getUsername = (state: RootState) => state.auth.name
 
 export default auth.reducer
