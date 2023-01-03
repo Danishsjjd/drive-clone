@@ -1,18 +1,108 @@
-import { createSlice } from "@reduxjs/toolkit"
-import { RootState } from "../config/store"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  UserInfo,
+} from "firebase/auth"
+import justPick from "just-pick"
+import { toast } from "react-hot-toast"
 
-const initialState = {
-  name: "danish",
+import { auth as firebaseAuth } from "../config/firebase"
+import { AppThunk, RootState } from "../config/store"
+
+type CredentialData = { email: string; password: string }
+
+export const pickCredential: (keyof UserInfo)[] = [
+  "displayName",
+  "email",
+  "uid",
+  "phoneNumber",
+  "photoURL",
+  "providerId",
+]
+
+type InitialState = {
+  user: UserInfo | null
+  beforeLogin: boolean
+  checkingIfLogin: boolean
+}
+
+const initialState: InitialState = {
+  user: null,
+  beforeLogin: JSON.parse(localStorage.getItem("isLogin") || "false") == true,
+  checkingIfLogin: true,
 }
 
 const auth = createSlice({
-  name: "Auth-slice",
+  name: "Auth",
   initialState,
-  reducers: {},
+  reducers: {
+    addUserData: (state, action: PayloadAction<UserInfo>) => {
+      state.user = action.payload
+      localStorage.setItem("isLogin", "true")
+    },
+    removeUserData: (state) => {
+      state.user = null
+      localStorage.setItem("isLogin", "false")
+    },
+    setLoginChecking: (state, action: PayloadAction<boolean>) => {
+      state.checkingIfLogin = action.payload
+    },
+  },
 })
 
-export const {} = auth.actions
+export const { addUserData, removeUserData, setLoginChecking } = auth.actions
 
-export const getUsername = (state: RootState) => state.auth.name
+export const signUp =
+  (data: CredentialData): AppThunk =>
+  async (dispatch) => {
+    toast
+      .promise(
+        createUserWithEmailAndPassword(firebaseAuth, data.email, data.password),
+        {
+          error: (e) => e,
+          loading: "Validating",
+          success: "Successfully Login",
+        }
+      )
+      .then(({ user }) => {
+        const userCredential = justPick(user, pickCredential)
+        dispatch(addUserData(userCredential))
+      })
+  }
+
+export const signIn =
+  (data: CredentialData): AppThunk =>
+  async (dispatch) => {
+    toast
+      .promise(
+        signInWithEmailAndPassword(firebaseAuth, data.email, data.password),
+        {
+          error: (e) => e,
+          loading: "Validating",
+          success: "Successfully Login",
+        }
+      )
+      .then(({ user }) => {
+        const userCredential = justPick(user, pickCredential)
+        dispatch(addUserData(userCredential))
+      })
+  }
+
+export const signOutUser = (): AppThunk => async (dispatch) => {
+  try {
+    await signOut(firebaseAuth)
+    dispatch(removeUserData())
+  } catch (e) {
+    toast.error("Something went wrong")
+    console.log(e)
+  }
+}
+
+export const getUserCredential = (state: RootState) => state.auth.user
+export const getBeforeLogin = (state: RootState) => state.auth.beforeLogin
+export const getCheckingIsLogin = (state: RootState) =>
+  state.auth.checkingIfLogin
 
 export default auth.reducer
