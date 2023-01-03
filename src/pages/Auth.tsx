@@ -1,5 +1,5 @@
 import Center from "../components/Center"
-import Form from "../components/Form"
+import Form from "../components/form/Form"
 
 const Auth = () => {
   return (

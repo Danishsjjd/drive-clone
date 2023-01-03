@@ -1,16 +1,10 @@
-import {
-  useForm,
-  UseFormRegister,
-  RegisterOptions,
-  Path,
-  DeepMap,
-  FieldError,
-} from "react-hook-form"
-import { ErrorMessage } from "@hookform/error-message"
+import { useForm } from "react-hook-form"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAppDispatch } from "../hooks/hooks"
-import { signIn, signUp as firebaseSignUp } from "../store/auth"
 import { toast } from "react-hot-toast"
+
+import { useAppDispatch } from "../../hooks/hooks"
+import { signIn, signUp as firebaseSignUp } from "../../store/auth"
+import Input from "./Input"
 
 type FormData = {
   email: string
@@ -109,48 +103,6 @@ function Form() {
         </button>
       </p>
     </form>
-  )
-}
-
-type InputProps<T extends {}> = {
-  title: string
-  type: React.HTMLInputTypeAttribute
-  errors: Partial<DeepMap<T, FieldError>>
-  name: Path<T>
-  register: UseFormRegister<T>
-  className?: string
-  validations?: RegisterOptions
-}
-
-const Input = <T extends {}>({
-  title,
-  type,
-  className,
-  name,
-  register,
-  validations,
-  errors,
-  ...props
-}: InputProps<T>) => {
-  return (
-    <label>
-      <h3 className="pb-2">{title}</h3>
-      <input
-        type={type}
-        className={`input-primary input min-w-[20rem] ${
-          className ? className : ""
-        }`}
-        {...register(name, validations)}
-        {...props}
-      />
-      <ErrorMessage
-        errors={errors}
-        name={name as any}
-        render={({ message }) => {
-          return <p className="mt-1 text-red-600">{message}</p>
-        }}
-      />
-    </label>
   )
 }
 

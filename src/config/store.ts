@@ -6,9 +6,11 @@ import {
 } from "@reduxjs/toolkit"
 
 import auth from "../store/auth"
+import folder from "../store/folder"
 
 const reducer = {
   auth,
+  folder,
 }
 
 const store = configureStore({
