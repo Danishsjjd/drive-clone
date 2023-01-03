@@ -1,10 +1,13 @@
-import { useAppSelector } from "./hooks/hooks"
-import { getUsername } from "./store/auth"
+import { BrowserRouter } from "react-router-dom"
+
+import Router from "./routes/Router"
 
 function App() {
-  const username = useAppSelector(getUsername)
-
-  return <div className="bg-red-400 text-white">Hello {username}</div>
+  return (
+    <BrowserRouter>
+      <Router />
+    </BrowserRouter>
+  )
 }
 
 export default App
