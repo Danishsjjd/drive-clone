@@ -3,7 +3,7 @@ import justPick from "just-pick"
 import { useEffect } from "react"
 import { Toaster } from "react-hot-toast"
 import { useSelector } from "react-redux"
-import { BrowserRouter, Navigate } from "react-router-dom"
+import { BrowserRouter } from "react-router-dom"
 
 import { auth } from "./config/firebase"
 import { useAppDispatch } from "./hooks/hooks"
@@ -39,9 +39,9 @@ function App() {
         data
       </span>
     )
-  else if (!beforeLogin && checkingIfLogin)
-    return <Navigate to={"/signUp"} replace />
-  else
+  else if (!beforeLogin && checkingIfLogin) {
+    return <span>user is not login</span>
+  } else
     return (
       <BrowserRouter>
         <Toaster />
