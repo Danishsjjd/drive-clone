@@ -2,6 +2,7 @@ import { Dialog, Transition } from "@headlessui/react"
 import { addDoc, serverTimestamp } from "firebase/firestore"
 import { Dispatch, Fragment, SetStateAction } from "react"
 import { useForm } from "react-hook-form"
+
 import { db } from "../../config/firebase"
 import { useAppSelector } from "../../hooks/hooks"
 import { getUserCredential } from "../../store/auth"
@@ -29,11 +30,9 @@ export default function InputDialog({
   const userData = useAppSelector(getUserCredential)
 
   const submit = async ({ name }: FormData) => {
-    // Todo:
     try {
       await addDoc(db.folders(), {
         name,
-        path: [],
         userId: userData?.uid as string,
         parentId: null,
         createdAt: serverTimestamp(),

@@ -1,19 +1,38 @@
+import { useSelector } from "react-redux"
+import { MouseEventHandler } from "react"
+
 import Navbar from "../components/Navbar"
 import TopBar from "../components/TopBar"
+import useFolder from "../hooks/useFolder"
+import { getFolder } from "../store/folder"
+import { useNavigate } from "react-router-dom"
 
 const Dashboard = () => {
+  const { childFiles, childFolder, folder } = useSelector(getFolder)
+  const navigate = useNavigate()
+  useFolder()
+  console.log("folder", folder)
   return (
     <>
       <Navbar />
       <TopBar />
-      <div className="mx-auto mb-8 mt-4 max-w-7xl px-4">
-        <h3 className="mb-3 text-4xl">Folders</h3>
-        <div className="flex flex-wrap gap-3">
-          <Folder name="lorem3333333333333333333333333333333" />
-          <Folder name="Let's ogoo" />
+      {childFolder.length > 0 && (
+        <div className="mx-auto mb-8 mt-4 max-w-7xl px-4">
+          <h3 className="mb-3 text-4xl">Folders</h3>
+          <div className="flex flex-wrap gap-3">
+            {childFolder.map((folder) => {
+              return (
+                <Folder
+                  name={folder.name}
+                  key={folder.id}
+                  onClick={() => navigate(`/folder/${folder.id}`)}
+                />
+              )
+            })}
+          </div>
         </div>
-      </div>
-      <hr />
+      )}
+      {childFolder.length > 0 && childFiles.length > 0 && <hr />}
       <div className="mx-auto mt-6 mb-3 max-w-7xl px-4">
         <h3 className="mb-3 text-4xl">Files</h3>
         <div className="flex flex-wrap gap-3">
@@ -25,9 +44,18 @@ const Dashboard = () => {
   )
 }
 
-const Folder = ({ name }: { name: string }) => {
+const Folder = ({
+  name,
+  onClick,
+}: {
+  name: string
+  onClick: MouseEventHandler<HTMLDivElement>
+}) => {
   return (
-    <div className="max-w-[200px] cursor-pointer truncate rounded-xl bg-zinc-600 p-2 font-medium text-white transition-all duration-200 hover:bg-zinc-500">
+    <div
+      className="max-w-[200px] cursor-pointer truncate rounded-xl bg-zinc-600 p-2 font-medium text-white transition-all duration-200 hover:bg-zinc-500"
+      onClick={onClick}
+    >
       {name}
     </div>
   )

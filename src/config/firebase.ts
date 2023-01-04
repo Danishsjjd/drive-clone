@@ -1,11 +1,12 @@
-import { initializeApp, getApp, getApps } from "firebase/app"
+import { getApp, getApps, initializeApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
 import {
   collection,
   CollectionReference,
   getFirestore,
 } from "firebase/firestore"
-import { Folder } from "../store/folder"
+
+import { FolderWithUID } from "../types/folder"
 
 const firebaseConfig = {
   apiKey: "AIzaSyAW13TsnbSYtEjb-lExmmuuMXEr5B8g4vk",
@@ -21,12 +22,8 @@ const auth = getAuth(app)
 
 const store = getFirestore(app)
 
-export interface FirebaseFolder extends Folder {
-  userId: string
-}
-
 const db = {
-  folders: <T = FirebaseFolder>() =>
+  folders: <T = FolderWithUID>() =>
     collection(store, "folders") as CollectionReference<T>,
 }
 

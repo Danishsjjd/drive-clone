@@ -1,24 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit"
-import { FieldValue } from "firebase/firestore"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 import { RootState } from "../config/store"
-
-type NOS = null | string
-type Path = { id: string; name: string }[]
-
-export type Folder = {
-  name: string
-  createdAt?: FieldValue
-  id?: string
-  parentId: NOS
-  path: Path
-}
-
-type InitialState = {
-  folder: Folder
-  childFiles: string[]
-  childFolder: string[]
-}
+import { Folder, NOS, Path } from "../types/folder"
 
 const ROOT_FOLDER: Folder = {
   parentId: null,
@@ -26,19 +9,51 @@ const ROOT_FOLDER: Folder = {
   path: [],
 }
 
+type InitialState = {
+  folder: Folder
+  childFiles: Path[]
+  childFolder: Path[]
+}
+
 const initialState: InitialState = {
   childFiles: [],
   childFolder: [],
   folder: ROOT_FOLDER,
+  // todo: when new folder open push path, when previous item select remove forward child with index
 }
 
 const folder = createSlice({
   name: "folder",
   initialState,
-  reducers: {},
+  reducers: {
+    setFolderInitial: (
+      state,
+      action: PayloadAction<{
+        folderName: NOS | undefined
+        folderId: NOS | undefined
+      }>
+    ) => {
+      let { folderId, folderName } = action.payload
+      folderName = folderName || "Root"
+      if (folderId == null)
+        return {
+          ...state,
+          folder: ROOT_FOLDER,
+        }
+      return {
+        ...state,
+        folder: { ...state.folder, name: folderName, id: folderId },
+        childFiles: [],
+        childFolder: [],
+      }
+    },
+    setChildFolder: (state, action: PayloadAction<Path[]>) => {
+      state.childFolder = action.payload
+    },
+  },
 })
 
-export const {} = folder.actions
+export const { setFolderInitial, setChildFolder } = folder.actions
 
 export const getFolder = (state: RootState) => state.folder
 
