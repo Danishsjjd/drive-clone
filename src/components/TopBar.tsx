@@ -1,6 +1,7 @@
 import { addDoc, serverTimestamp } from "firebase/firestore"
 import { MouseEventHandler, useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "react-hot-toast"
 import { AiFillFileAdd, AiFillFolderAdd } from "react-icons/ai"
 import { IconType } from "react-icons/lib/esm/iconBase"
 
@@ -37,6 +38,7 @@ const TopBar = () => {
       setIsInputDialogOpen(false)
       reset()
     } catch (e) {
+      toast.error("Something went wrong")
       console.log("error is", e)
     }
   }

@@ -35,7 +35,6 @@ function Form() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {/* // TODO: change */}
       <h3 className="mb-4 text-center text-4xl text-slate-700">
         {signUp ? "Sign Up" : "Sign In"}
       </h3>

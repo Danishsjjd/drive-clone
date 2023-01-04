@@ -19,7 +19,6 @@ const initialState: InitialState = {
   childFiles: [],
   childFolder: [],
   folder: ROOT_FOLDER,
-  // todo: when new folder open push path, when previous item select remove forward child with index
 }
 
 const folder = createSlice({

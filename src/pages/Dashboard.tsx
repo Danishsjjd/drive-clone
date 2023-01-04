@@ -8,10 +8,9 @@ import { getFolder } from "../store/folder"
 import { useNavigate } from "react-router-dom"
 
 const Dashboard = () => {
-  const { childFiles, childFolder, folder } = useSelector(getFolder)
+  const { childFiles, childFolder } = useSelector(getFolder)
   const navigate = useNavigate()
   useFolder()
-  console.log("folder", folder)
   return (
     <>
       <Navbar />

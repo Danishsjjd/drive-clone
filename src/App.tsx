@@ -13,6 +13,7 @@ import {
   getBeforeLogin,
   getCheckingIsLogin,
   pickCredential,
+  removeUserData,
   setLoginChecking,
 } from "./store/auth"
 
@@ -26,6 +27,8 @@ function App() {
       if (user) {
         const userCredential = justPick(user, pickCredential)
         dispatch(addUserData(userCredential))
+      } else {
+        dispatch(removeUserData())
       }
       dispatch(setLoginChecking(false))
     })

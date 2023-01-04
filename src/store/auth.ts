@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import {
+  AuthError,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -61,7 +62,10 @@ export const signUp =
       .promise(
         createUserWithEmailAndPassword(firebaseAuth, data.email, data.password),
         {
-          error: (e) => e,
+          error: (e) => {
+            const error = e as AuthError
+            return getRefinedFirebaseAuthErrorMessage(error.message)
+          },
           loading: "Validating",
           success: "Successfully Login",
         }
@@ -79,7 +83,10 @@ export const signIn =
       .promise(
         signInWithEmailAndPassword(firebaseAuth, data.email, data.password),
         {
-          error: (e) => e,
+          error: (e) => {
+            const error = e as AuthError
+            return getRefinedFirebaseAuthErrorMessage(error.message)
+          },
           loading: "Validating",
           success: "Successfully Login",
         }
@@ -95,7 +102,6 @@ export const signOutUser = (): AppThunk => async (dispatch) => {
     await signOut(firebaseAuth)
     dispatch(removeUserData())
   } catch (e) {
-    toast.error("Something went wrong")
     console.log(e)
   }
 }
@@ -104,5 +110,9 @@ export const getUserCredential = (state: RootState) => state.auth.user
 export const getBeforeLogin = (state: RootState) => state.auth.beforeLogin
 export const getCheckingIsLogin = (state: RootState) =>
   state.auth.checkingIfLogin
+
+function getRefinedFirebaseAuthErrorMessage(errorMesssage: string): string {
+  return errorMesssage.replace("Firebase: ", "").replace(/\(auth.*\)\.?/, "")
+}
 
 export default auth.reducer
