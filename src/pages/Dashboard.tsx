@@ -8,13 +8,13 @@ import { getFolder } from "../store/folder"
 import { useNavigate } from "react-router-dom"
 
 const Dashboard = () => {
-  const { childFiles, childFolder } = useSelector(getFolder)
+  const { childFiles, childFolder, folder } = useSelector(getFolder)
   const navigate = useNavigate()
   useFolder()
   return (
     <>
       <Navbar />
-      <TopBar />
+      <TopBar currentFolder={folder} />
       {childFolder.length > 0 && (
         <div className="mx-auto mb-8 mt-4 max-w-7xl px-4">
           <h3 className="mb-3 text-4xl">Folders</h3>

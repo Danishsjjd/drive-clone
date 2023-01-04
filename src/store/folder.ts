@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "../config/store"
 import { Folder, NOS, Path } from "../types/folder"
 
-const ROOT_FOLDER: Folder = {
+export const ROOT_FOLDER: Folder = {
   parentId: null,
   name: "Root",
   path: [],
@@ -33,12 +33,13 @@ const folder = createSlice({
       }>
     ) => {
       let { folderId, folderName } = action.payload
-      folderName = folderName || "Root"
+      folderName = folderName || ""
       if (folderId == null)
         return {
           ...state,
           folder: ROOT_FOLDER,
         }
+
       return {
         ...state,
         folder: { ...state.folder, name: folderName, id: folderId },
@@ -46,13 +47,16 @@ const folder = createSlice({
         childFolder: [],
       }
     },
+    setFolder: (state, action: PayloadAction<Folder>) => {
+      state.folder = action.payload
+    },
     setChildFolder: (state, action: PayloadAction<Path[]>) => {
       state.childFolder = action.payload
     },
   },
 })
 
-export const { setFolderInitial, setChildFolder } = folder.actions
+export const { setFolderInitial, setChildFolder, setFolder } = folder.actions
 
 export const getFolder = (state: RootState) => state.folder
 

@@ -1,12 +1,20 @@
-import { query, where, onSnapshot, orderBy } from "firebase/firestore"
+import {
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+  doc,
+  getDoc,
+} from "firebase/firestore"
 import { useEffect } from "react"
 import { useLocation, useParams } from "react-router-dom"
 import justPick from "just-pick"
 
 import { db } from "../config/firebase"
 import { getUserCredential } from "../store/auth"
-import { setChildFolder, setFolderInitial } from "../store/folder"
+import { setChildFolder, setFolder, setFolderInitial } from "../store/folder"
 import { useAppDispatch, useAppSelector } from "./hooks"
+import { Folder } from "../types/folder"
 
 const useFolder = () => {
   const dispatch = useAppDispatch()
@@ -28,13 +36,27 @@ const useFolder = () => {
   }, [folderName, folderId])
 
   useEffect(() => {
+    if (folderId) {
+      const docRef = doc(db.folders(), folderId)
+      async function fetchFolder() {
+        const folder = await getDoc(docRef)
+        const folderData = { id: folder.id, ...folder.data() }
+        dispatch(
+          setFolder(
+            justPick(folderData as Folder, ["id", "name", "parentId", "path"])
+          )
+        )
+      }
+      fetchFolder()
+    }
+
     const dbQuery = query(
       db.folders(),
       where("userId", "==", userData?.uid),
       where("parentId", "==", folderId),
       orderBy("createdAt")
     )
-    return onSnapshot(dbQuery, (snapshot) => {
+    const unSub = onSnapshot(dbQuery, (snapshot) => {
       dispatch(
         setChildFolder(
           snapshot.docs.map((doc) =>
@@ -43,6 +65,10 @@ const useFolder = () => {
         )
       )
     })
+
+    return () => {
+      unSub()
+    }
   }, [folderId])
   return null
 }
