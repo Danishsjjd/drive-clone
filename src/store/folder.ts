@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 import { RootState } from "../config/store"
+import { File } from "../types/file"
 import { Folder, NOS, Path } from "../types/folder"
 
 export const ROOT_FOLDER: Folder = {
@@ -11,7 +12,7 @@ export const ROOT_FOLDER: Folder = {
 
 type InitialState = {
   folder: Folder
-  childFiles: Path[]
+  childFiles: File[]
   childFolder: Path[]
 }
 
@@ -53,10 +54,14 @@ const folder = createSlice({
     setChildFolder: (state, action: PayloadAction<Path[]>) => {
       state.childFolder = action.payload
     },
+    setChildFiles: (state, action: PayloadAction<File[]>) => {
+      state.childFiles = action.payload
+    },
   },
 })
 
-export const { setFolderInitial, setChildFolder, setFolder } = folder.actions
+export const { setFolderInitial, setChildFolder, setFolder, setChildFiles } =
+  folder.actions
 
 export const getFolder = (state: RootState) => state.folder
 

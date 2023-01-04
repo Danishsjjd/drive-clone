@@ -12,7 +12,12 @@ import justPick from "just-pick"
 
 import { db } from "../config/firebase"
 import { getUserCredential } from "../store/auth"
-import { setChildFolder, setFolder, setFolderInitial } from "../store/folder"
+import {
+  setChildFiles,
+  setChildFolder,
+  setFolder,
+  setFolderInitial,
+} from "../store/folder"
 import { useAppDispatch, useAppSelector } from "./hooks"
 import { Folder } from "../types/folder"
 
@@ -50,13 +55,13 @@ const useFolder = () => {
       fetchFolder()
     }
 
-    const dbQuery = query(
+    const folderQuery = query(
       db.folders(),
       where("userId", "==", userData?.uid),
       where("parentId", "==", folderId),
       orderBy("createdAt")
     )
-    const unSub = onSnapshot(dbQuery, (snapshot) => {
+    const unSubFolder = onSnapshot(folderQuery, (snapshot) => {
       dispatch(
         setChildFolder(
           snapshot.docs.map((doc) =>
@@ -66,8 +71,24 @@ const useFolder = () => {
       )
     })
 
+    const filesQuery = query(
+      db.files(),
+      where("userId", "==", userData?.uid),
+      where("parentId", "==", folderId),
+      orderBy("createdAt")
+    )
+    const unSubFiles = onSnapshot(filesQuery, (snapshot) => {
+      dispatch(
+        setChildFiles(
+          snapshot.docs.map((doc) =>
+            justPick(doc.data(), ["id", "name", "parentId", "url", "userId"])
+          )
+        )
+      )
+    })
     return () => {
-      unSub()
+      unSubFolder()
+      unSubFiles()
     }
   }, [folderId])
   return null

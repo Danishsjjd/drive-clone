@@ -1,11 +1,15 @@
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
+import { CircularProgressbar } from "react-circular-progressbar"
+import "react-circular-progressbar/dist/styles.css"
+import { v4 } from "uuid"
 import { addDoc, serverTimestamp } from "firebase/firestore"
-import { MouseEventHandler, useState } from "react"
+import React, { MouseEventHandler, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "react-hot-toast"
 import { AiFillFileAdd, AiFillFolderAdd } from "react-icons/ai"
 import { IconType } from "react-icons/lib/esm/iconBase"
 
-import { db } from "../config/firebase"
+import { db, storage } from "../config/firebase"
 import { useAppSelector } from "../hooks/hooks"
 import { getUserCredential } from "../store/auth"
 import { ROOT_FOLDER } from "../store/folder"
@@ -40,6 +44,8 @@ const miniFolderIcon = (
 const TopBar = ({ currentFolder }: Props) => {
   const userData = useAppSelector(getUserCredential)
   const [isInputDialogOpen, setIsInputDialogOpen] = useState(false)
+  const [loaderPercentage, setLoaderPercentage] = useState(0)
+  const [fileName, setFilename] = useState("")
 
   const {
     formState: { errors },
@@ -72,17 +78,103 @@ const TopBar = ({ currentFolder }: Props) => {
     }
   }
 
+  //! if user select the save file again it's not gonna upload
+  function onImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (userData?.uid == null) return
+    if (e.currentTarget?.files?.[0] != null) {
+      const file = e.currentTarget.files[0]
+      const path = [
+        ...currentFolder.path,
+        { id: currentFolder.id, name: currentFolder.name },
+      ]
+      // same path in the db as folder have
+      // after uploading
+
+      const folderPathStr =
+        currentFolder === ROOT_FOLDER
+          ? ""
+          : path.map((fold) => fold.name).join("/")
+      const name = file.name
+      setFilename(name)
+
+      const lastDot = name.lastIndexOf(".")
+      const ext = name.substring(lastDot + 1)
+
+      const uniqueId = v4()
+      const pathToSave = `${userData?.uid}/${folderPathStr}/${uniqueId}.${ext}`
+
+      const storageRef = ref(storage, pathToSave)
+
+      const uploadTask = uploadBytesResumable(storageRef, file)
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          setLoaderPercentage(Math.round(progress))
+          console.log(progress)
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused")
+              break
+            case "running":
+              console.log("Upload is running")
+              break
+            default:
+              setLoaderPercentage(0)
+              break
+          }
+        },
+        (error) => {
+          toast.error("something went wrong")
+          console.log(error)
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            await addDoc(db.files(), {
+              createdAt: serverTimestamp(),
+              id: uniqueId,
+              name,
+              parentId: currentFolder.id || null,
+              userId: userData.uid,
+              url: downloadURL,
+            })
+          })
+        }
+      )
+    }
+  }
+
   return (
     <div className="mx-auto flex max-w-7xl justify-between py-2 px-3">
       <BreadCrumb currentFolder={currentFolder} />
 
       <div className="flex gap-3">
-        <Icon ChildIcon={AiFillFileAdd} onClick={() => {}} />
+        <label>
+          <Icon ChildIcon={AiFillFileAdd} />
+          <input
+            type="file"
+            className="hidden"
+            onChange={onImageChange}
+            max={1}
+            maxLength={1}
+          />
+        </label>
         <Icon
           ChildIcon={AiFillFolderAdd}
           onClick={() => setIsInputDialogOpen(true)}
         />
       </div>
+
+      {loaderPercentage === 0 || loaderPercentage === 100 ? null : (
+        <div className="fixed bottom-10 right-10 flex w-full max-w-[120px] items-center justify-center gap-3  ">
+          <CircularProgressbar
+            value={loaderPercentage}
+            text={`${loaderPercentage}%`}
+          />
+        </div>
+      )}
 
       <Dialog
         isOpen={isInputDialogOpen}
@@ -135,7 +227,7 @@ const Icon = ({
   onClick,
 }: {
   ChildIcon: IconType
-  onClick: MouseEventHandler<HTMLDivElement>
+  onClick?: MouseEventHandler<HTMLDivElement>
 }) => {
   return (
     <div

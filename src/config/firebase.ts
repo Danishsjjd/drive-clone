@@ -10,7 +10,9 @@ import {
   CollectionReference,
   getFirestore,
 } from "firebase/firestore"
+import { getStorage } from "firebase/storage"
 
+import { FirebaseFile } from "../types/file"
 import { FolderWithUID } from "../types/folder"
 
 const firebaseConfig = {
@@ -31,10 +33,13 @@ const auth: Auth = initializeAuth(app, {
 })
 
 const store = getFirestore(app)
+const storage = getStorage(app)
 
 const db = {
   folders: <T = FolderWithUID>() =>
     collection(store, "folders") as CollectionReference<T>,
+  files: <T = FirebaseFile>() =>
+    collection(store, "files") as CollectionReference<T>,
 }
 
-export { auth, db }
+export { auth, db, storage }
