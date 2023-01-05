@@ -8,6 +8,7 @@ import {
 import {
   collection,
   CollectionReference,
+  DocumentSnapshot,
   getFirestore,
 } from "firebase/firestore"
 import { getStorage } from "firebase/storage"
@@ -16,12 +17,12 @@ import { FirebaseFile } from "../types/file"
 import { FolderWithUID } from "../types/folder"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAW13TsnbSYtEjb-lExmmuuMXEr5B8g4vk",
-  authDomain: "drive-67bc9.firebaseapp.com",
-  projectId: "drive-67bc9",
-  storageBucket: "drive-67bc9.appspot.com",
-  messagingSenderId: "345523267720",
-  appId: "1:345523267720:web:f874df9ce145bfa153d73d",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
@@ -40,6 +41,10 @@ const db = {
     collection(store, "folders") as CollectionReference<T>,
   files: <T = FirebaseFile>() =>
     collection(store, "files") as CollectionReference<T>,
+  format: <T extends {}>(doc: DocumentSnapshot<T>): { id: string } & T => ({
+    id: doc.id,
+    ...(doc.data() as T),
+  }),
 }
 
 export { auth, db, storage }
