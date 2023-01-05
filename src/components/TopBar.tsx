@@ -16,6 +16,8 @@ import { ROOT_FOLDER } from "../store/folder"
 import { Folder } from "../types/folder"
 import Dialog from "./Dialog"
 import Input from "./form/Input"
+import MiniFolderIcon from "./FolderIcon"
+import { Link } from "react-router-dom"
 
 type FormData = {
   name: string
@@ -25,27 +27,10 @@ type Props = {
   currentFolder: Folder
 }
 
-const miniFolderIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    className="mr-2 h-4 w-4 stroke-current"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-    ></path>
-  </svg>
-)
-
 const TopBar = ({ currentFolder }: Props) => {
   const userData = useAppSelector(getUserCredential)
   const [isInputDialogOpen, setIsInputDialogOpen] = useState(false)
   const [loaderPercentage, setLoaderPercentage] = useState(0)
-  const [fileName, setFilename] = useState("")
 
   const {
     formState: { errors },
@@ -95,7 +80,6 @@ const TopBar = ({ currentFolder }: Props) => {
           ? ""
           : path.map((fold) => fold.name).join("/")
       const name = file.name
-      setFilename(name)
 
       const lastDot = name.lastIndexOf(".")
       const ext = name.substring(lastDot + 1)
@@ -113,7 +97,7 @@ const TopBar = ({ currentFolder }: Props) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           setLoaderPercentage(Math.round(progress))
-          console.log(progress)
+          // TODO:
           switch (snapshot.state) {
             case "paused":
               console.log("Upload is paused")
@@ -204,18 +188,31 @@ const TopBar = ({ currentFolder }: Props) => {
 }
 
 const BreadCrumb = ({ currentFolder }: Props) => {
+  const path =
+    currentFolder === ROOT_FOLDER ? [] : [ROOT_FOLDER, ...currentFolder.path]
   return (
     <div className="breadcrumbs text-sm">
       <ul>
-        {currentFolder.path.map((child) => (
-          <li key={child.id}>
-            {miniFolderIcon}
-            <a>{child.name}</a>
+        {path.map((child, index) => (
+          <li
+            key={child.id || "Root"}
+            className="cursor-pointer hover:underline"
+          >
+            <MiniFolderIcon />
+            <Link
+              to={child.id ? `/folder/${child.id}` : "/"}
+              className="max-w-[150px] truncate"
+              state={{
+                folder: { ...child, path: path.slice(1, index) },
+              }}
+            >
+              {child.name}
+            </Link>
           </li>
         ))}
         <li>
-          {miniFolderIcon}
-          <a href="">{currentFolder.name}</a>
+          <MiniFolderIcon />
+          <span>{currentFolder.name}</span>
         </li>
       </ul>
     </div>

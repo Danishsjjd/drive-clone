@@ -6,6 +6,7 @@ import TopBar from "../components/TopBar"
 import useFolder from "../hooks/useFolder"
 import { getFolder } from "../store/folder"
 import { useNavigate } from "react-router-dom"
+import MiniFolderIcon from "../components/FolderIcon"
 
 const Dashboard = () => {
   const { childFiles, childFolder, folder } = useSelector(getFolder)
@@ -19,12 +20,16 @@ const Dashboard = () => {
         <div className="mx-auto mb-8 mt-4 max-w-7xl px-4">
           <h3 className="mb-3 text-lg">Folders</h3>
           <div className="flex flex-wrap gap-3">
-            {childFolder.map((folder) => {
+            {childFolder.map((singleFolder) => {
               return (
                 <Folder
-                  name={folder.name}
-                  key={folder.id}
-                  onClick={() => navigate(`/folder/${folder.id}`)}
+                  name={singleFolder.name}
+                  key={singleFolder.id}
+                  onClick={() => {
+                    navigate(`/folder/${singleFolder.id}`, {
+                      state: { folder: singleFolder },
+                    })
+                  }}
                 />
               )
             })}
@@ -56,10 +61,11 @@ const Folder = ({
 }) => {
   return (
     <div
-      className="max-w-[200px] cursor-pointer truncate rounded-xl bg-zinc-600 p-2 font-medium text-white transition-all duration-200 hover:bg-zinc-500"
+      className="flex cursor-pointer items-center justify-center gap-1 rounded-xl bg-zinc-600 p-2 font-medium text-white transition-all duration-200 hover:bg-zinc-500"
       onClick={onClick}
     >
-      {name}
+      <MiniFolderIcon />
+      <span className="max-w-[140px] truncate">{name}</span>
     </div>
   )
 }

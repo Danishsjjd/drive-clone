@@ -13,7 +13,7 @@ export const ROOT_FOLDER: Folder = {
 type InitialState = {
   folder: Folder
   childFiles: File[]
-  childFolder: Path[]
+  childFolder: Folder[]
 }
 
 const initialState: InitialState = {
@@ -29,12 +29,12 @@ const folder = createSlice({
     setFolderInitial: (
       state,
       action: PayloadAction<{
-        folderName: NOS | undefined
+        folder: Folder | undefined
         folderId: NOS | undefined
       }>
     ) => {
-      let { folderId, folderName } = action.payload
-      folderName = folderName || ""
+      let { folderId, folder } = action.payload
+      folder = folder || ROOT_FOLDER
       if (folderId == null)
         return {
           ...state,
@@ -43,7 +43,7 @@ const folder = createSlice({
 
       return {
         ...state,
-        folder: { ...state.folder, name: folderName, id: folderId },
+        folder,
         childFiles: [],
         childFolder: [],
       }
@@ -51,7 +51,7 @@ const folder = createSlice({
     setFolder: (state, action: PayloadAction<Folder>) => {
       state.folder = action.payload
     },
-    setChildFolder: (state, action: PayloadAction<Path[]>) => {
+    setChildFolder: (state, action: PayloadAction<Folder[]>) => {
       state.childFolder = action.payload
     },
     setChildFiles: (state, action: PayloadAction<File[]>) => {

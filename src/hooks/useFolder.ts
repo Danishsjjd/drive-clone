@@ -28,17 +28,17 @@ const useFolder = () => {
   const params = useParams()
   const { state } = useLocation()
 
-  const folderName = state?.folderName || null
+  const folder = state?.folder || null
   const folderId = params?.folderId || null
 
   useEffect(() => {
     dispatch(
       setFolderInitial({
         folderId: folderId,
-        folderName: folderName,
+        folder: folder,
       })
     )
-  }, [folderName, folderId])
+  }, [folder, folderId])
 
   useEffect(() => {
     if (folderId) {
@@ -65,7 +65,12 @@ const useFolder = () => {
       dispatch(
         setChildFolder(
           snapshot.docs.map((doc) =>
-            justPick({ id: doc.id, ...doc.data() }, ["id", "name"])
+            justPick({ id: doc.id, ...doc.data() }, [
+              "id",
+              "name",
+              "parentId",
+              "path",
+            ])
           )
         )
       )
