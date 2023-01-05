@@ -90,6 +90,8 @@ const TopBar = ({ currentFolder }: Props) => {
 
       const uploadTask = uploadBytesResumable(storageRef, file)
 
+      setLoaderPercentage(1)
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -99,9 +101,6 @@ const TopBar = ({ currentFolder }: Props) => {
           switch (snapshot.state) {
             case "paused":
               toast.error("uploading is paused")
-              break
-            default:
-              setLoaderPercentage(0)
               break
           }
         },
