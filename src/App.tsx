@@ -35,7 +35,6 @@ function App() {
   }, [])
 
   if (beforeLogin && checkingIfLogin)
-    // TODO: You can use different skeleton for every page just pass skeleton with page to PrivateRoutes
     return (
       <span>
         show app skeleton because user is Login and we are fetching the user
@@ -43,7 +42,7 @@ function App() {
       </span>
     )
   else if (!beforeLogin && checkingIfLogin) {
-    return <span>user is not login</span>
+    return <span>user is not login before navigate to login page</span>
   } else
     return (
       <BrowserRouter>

@@ -4,6 +4,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  updateEmail,
+  User,
   UserInfo,
 } from "firebase/auth"
 import justPick from "just-pick"
@@ -50,10 +52,19 @@ const auth = createSlice({
     setLoginChecking: (state, action: PayloadAction<boolean>) => {
       state.checkingIfLogin = action.payload
     },
+    updateAppUserEmail: (state, action: PayloadAction<string>) => {
+      if (state.user) state.user = { ...state.user, email: action.payload }
+      else return state
+    },
   },
 })
 
-export const { addUserData, removeUserData, setLoginChecking } = auth.actions
+export const {
+  addUserData,
+  removeUserData,
+  setLoginChecking,
+  updateAppUserEmail,
+} = auth.actions
 
 export const signUp =
   (data: CredentialData): AppThunk =>
@@ -106,12 +117,27 @@ export const signOutUser = (): AppThunk => async (dispatch) => {
   }
 }
 
+export const updateUserEmail =
+  (email: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      await updateEmail(firebaseAuth.currentUser as User, email)
+      dispatch(updateAppUserEmail(email))
+      toast.success("Email Successfully update")
+    } catch (e) {
+      const error = e as AuthError
+      toast.error(getRefinedFirebaseAuthErrorMessage(error.message))
+    }
+  }
+
 export const getUserCredential = (state: RootState) => state.auth.user
 export const getBeforeLogin = (state: RootState) => state.auth.beforeLogin
 export const getCheckingIsLogin = (state: RootState) =>
   state.auth.checkingIfLogin
 
-function getRefinedFirebaseAuthErrorMessage(errorMesssage: string): string {
+export function getRefinedFirebaseAuthErrorMessage(
+  errorMesssage: string
+): string {
   return errorMesssage.replace("Firebase: ", "").replace(/\(auth.*\)\.?/, "")
 }
 

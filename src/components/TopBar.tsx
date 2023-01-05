@@ -63,7 +63,6 @@ const TopBar = ({ currentFolder }: Props) => {
     }
   }
 
-  //! if user select the save file again it's not gonna upload
   function onImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (userData?.uid == null) return
     if (e.currentTarget?.files?.[0] != null) {
@@ -97,13 +96,9 @@ const TopBar = ({ currentFolder }: Props) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           setLoaderPercentage(Math.round(progress))
-          // TODO:
           switch (snapshot.state) {
             case "paused":
-              console.log("Upload is paused")
-              break
-            case "running":
-              console.log("Upload is running")
+              toast.error("uploading is paused")
               break
             default:
               setLoaderPercentage(0)
@@ -111,8 +106,8 @@ const TopBar = ({ currentFolder }: Props) => {
           }
         },
         (error) => {
-          toast.error("something went wrong")
-          console.log(error)
+          toast.error("enable to upload")
+          console.log("error is", error)
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
